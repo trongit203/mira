@@ -9,7 +9,7 @@ sealed class DashboardUiState {
         val totalBalance: Double,
         val totalIncome: Double,
         val totalExpense: Double,
-        val recentTransaction: List<Transaction>
+        val recentTransactions: List<Transaction>
     ) : DashboardUiState()
 
     data class Error(
