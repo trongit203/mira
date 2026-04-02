@@ -8,16 +8,22 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 
+// presentation/dashboard/DashboardViewModel.kt
+@HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val getDashboardSummary: GetDashboardSummaryUsecase,
     private val addTransaction: AddTransactionUsecase
 ) : ViewModel() {
+
     // ======= STATE FLOW - Cho UI state (màn hịnh)
     val uiState: StateFlow<DashboardUiState> =
             getDashboardSummary()
                 .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5_000),
+                    scope        = viewModelScope,
+                    started      = SharingStarted.WhileSubscribed(5_000),
+                    // WhileSubscribed(5000): Giữ Flow active 5 giây sau khi UI off screen
+                    // -> tránh restart khi xoay màn hình (<5 giây)
+                    // -> cancel khi user thực sự rời màn hĩnh
                     initialValue = DashboardUiState.Loading
                 )
 
@@ -27,13 +33,33 @@ class DashboardViewModel @Inject constructor(
     private val _event = MutableSharedFlow<DashboardEvent>(replay = 0)
     val events: SharedFlow<DashboardEvent> = _events.asSharedFlow()
 
-    fun onAddTransaction(transaction: Transaction) {
+    // ── ACTIONS ───────────────────────────────────────────────
+    // User actions từ UI -> ViewModel xử lý -> emit state hoặc event
+    fun onAddTransactionClick() { 
         viewModelScope.launch {
-            val result = addTransaction(transaction)
-                result.fold(
-                    onSuccess =  { _events.emit(DashboardEvent.ShowSuccess("Đã thêm giao dịch")) },
-                    onFailure =  { _events.emit(DashboardEvent.ShowError(it.message ?: "Lỗi")) }
-                )
+            _events.emit(DashboardEvent.NavigateToAddTransaction)
+        }
+    }
+
+    fun onTransactionClick(transactionId: Long) { 
+        viewModelScope.launch {
+            _events.emit(DashboardEvent.NavigateToAddTransaction(transactionId))
+        }
+    }
+
+    fun onQuickAddTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            addTransaction(transaction)
+                .onSuccess { 
+
+                }
+                .onFailure { error ->
+                    _events.emit(
+                        DashboardEvent.ShowSnackbar(
+                            error.message ?: "Lỗi khi thêm giao dịch"
+                        )
+                    )
+                }
         }
     }
 }

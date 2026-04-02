@@ -9,7 +9,7 @@ fun DashboardScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifeCycle()
 
     val snackbarHostState = remember { SnackBarHostState() }
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner    = LocalLifecycleOwner.current
 
     LaunchedEffect(viewModel.events, lifecycleOwner) {
         viewModel.events
@@ -17,6 +17,9 @@ fun DashboardScreen(
             .collect { event ->
                 when (event) {
 //                    TODO: Trong
+                    if DashboardEvent.ShowSuccess -> snackbarHostState.showSnackbar(event.message)
+                    if DashboardEvent.ShowError   -> snackbarHostState.showSnackbar(event.message)
+                    if DashboardEvent.NavigateTo  -> { /* navigate */ }  
                 }
 
             }
