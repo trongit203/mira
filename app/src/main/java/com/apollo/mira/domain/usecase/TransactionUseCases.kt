@@ -2,8 +2,13 @@ package com.apollo.mira.domain.usecase
 
 import com.apollo.mira.domain.model.DashboardSummary
 import com.apollo.mira.domain.model.Transaction
-import com.apollo.mira.presentation.dashboard.DashboardUiState
+import com.apollo.mira.domain.model.TransactionType
+import com.apollo.mira.domain.repository.TransactionRepository
+import com.apollo.mira.presentation.common.UiState
+//import com.apollo.mira.presentation.dashboard.DashboardViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 // UseCase1: Lấy dashboard summary
@@ -11,15 +16,15 @@ class GetDashboardSummaryUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
 
-    operator fun invoke(): Flow<DashboardUiState> =
-        repository.getRecentTransactionList(limit = 10)
+    operator fun invoke(): Flow<UiState<DashboardSummary>> =
+        repository.getRecentTransactions(limit = 10)
             .map { transactions ->
                 val income = transactions
-                    .filter { it.type == INCOME }
+                    .filter { it.type == TransactionType.INCOME }
                     .sumOf { it.amount }
                 
                 val expense = transactions
-                    .filter { it.type == EXPENSE }
+                    .filter { it.type == TransactionType.EXPENSE }
                     .sumOf { it.amount }
 
                 val summary = DashboardSummary(

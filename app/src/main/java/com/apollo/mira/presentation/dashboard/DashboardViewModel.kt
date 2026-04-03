@@ -46,7 +46,7 @@ class DashboardViewModel @Inject constructor(
 
     fun onTransactionClick(transactionId: Long) { 
         viewModelScope.launch {
-            _events.emit(DashboardEvent.NavigateToAddTransaction(transactionId))
+            _events.emit(DashboardEvent.NavigateToDetail(transactionId))
         }
     }
 

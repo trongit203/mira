@@ -1,5 +1,6 @@
 package com.apollo.mira.data.mapper
 
+import com.apollo.mira.data.local.entity.TransactionEntity
 import com.apollo.mira.domain.model.DataSource
 import com.apollo.mira.domain.model.Transaction
 import com.apollo.mira.domain.model.TransactionType
@@ -33,7 +34,7 @@ class TransactionMapper @Inject constructor() {
                 // runCatching + getOrDefault: an toan hon valueOf()
                 // valueOf() throw exception neu string khong match enum
                 type = runCatching {
-                    TransactionType.valueOf(entity.page)
+                    TransactionType.valueOf(entity.type)
                 }.getOrDefault(TransactionType.EXPENSE),
 
                 source = runCatching {
