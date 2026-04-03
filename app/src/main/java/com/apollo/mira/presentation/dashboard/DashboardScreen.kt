@@ -1,35 +1,205 @@
 package com.apollo.mira.presentation.dashboard
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue // Nếu sau này bạn dùng 'var ... by remember'
+import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.apollo.mira.domain.model.Transaction
+import com.apollo.mira.presentation.common.UiState
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.apollo.mira.domain.model.DashboardSummary
+import com.apollo.mira.domain.model.TransactionType
+import kotlinx.coroutines.flow.collectLatest
 
+// ============================================================
+// DASHBOARD SCREEN - Compose UI
+// Nguyen tac:
+// - collectedAsStateWithLifecycle: chỉ collect khi app foreground
+// - SharedFlow collect trong LaunchedEffect (không phải collectAsState)
+// - when(uiState) xử lý tất cả state - không if/else
 @Composable
 fun DashboardScreen(
+    onNavigateToAddTransaction: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifeCycle()
-
-    val snackbarHostState = remember { SnackBarHostState() }
+    // collectAsStateWithLifecycle: lifecycle-aware, chỉ collect khi STARTED
+    // cần dependency: androidx.lifecycle:lifecycle-runtime-compose
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
     val lifecycleOwner    = LocalLifecycleOwner.current
 
+    // SharedFlow -> LaunchedEffect (không dùng cbodel thay đổi
     LaunchedEffect(viewModel.events, lifecycleOwner) {
-        viewModel.events
-            .flowWithLifecycle(lifecycleOwner.lifecycle)
-            .collect { event ->
-                when (event) {
-//                    TODO: Trong
-                    if DashboardEvent.ShowSuccess -> snackbarHostState.showSnackbar(event.message)
-                    if DashboardEvent.ShowError   -> snackbarHostState.showSnackbar(event.message)
-                    if DashboardEvent.NavigateTo  -> { /* navigate */ }  
-                }
+        viewModel.events.collectLatest { event ->
+            when (event) { 
+                is DashboardEvent.ShowSnackbar -> 
+                    snackbarHostState.showSnackbar(event.message)
 
+                DashboardEvent.NavigateToAddTransaction ->
+                    onNavigateToAddTransaction()
+
+                is DashboardEvent.NavigateToDetail ->
+                    onNavigateToDetail(event.transactionId)
             }
+        }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
-        when (val state = uiState) {
-            is DashboardUiState.Loading -> LoadingScreen()
-            is DashboardUiState.Error -> ErrorScreen(state.message, state.retryAction)
-            is DashboardUiState.Success -> DashboardContent(state, padding)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = { 
+            FloatingActionButton(onClick = viewModel::onAddTransactionClick) {
+                Text("+")
+            }
+        }   
+    ) { paddingValues ->
+        // when la exhautive - compiler bat neu thieu case
+        when (val state = uiState) { 
+            is UiState.Loading -> LoadingContent(Modifier.padding(paddingValues))
+
+            is UiState.Error -> 
+                ErrorContent(
+                    message = state.message,
+                    // retry chỉ show nếu retryable = true
+                    // ViewModel tự reload vì StateFlow vẫn active
+                    modifier = Modifier.padding(paddingValues)
+                )
+
+            is UiState.Success ->
+                DashboardContent(
+                    summary = state.data,
+                    onTransactionClick = viewModel::onTransactionClick,
+                    modifier = Modifier.padding(paddingValues)
+                )
+        }
+     }
+}
+
+// Sub-composables
+
+@Composable
+fun DashboardContent(
+    summary: DashboardSummary,
+    onTransactionClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) { 
+    LazyColumn(modifier = modifier.fillMaxSize()) {
+        item {
+            BalanceCard(
+                balance = summary.netBalance,
+                income = summary.totalIncome,
+                expense = summary.totalExpense
+            )
+        }
+        item {
+            Text(
+                text = "Giao dịch gần đây",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+        items(
+            items = summary.recentTransactions,
+            key = { it.id } // key quan trong cho performance LazyColumn
+        ) { transaction ->
+            TransactionItem(
+                transaction = transaction,
+                onClick = { onTransactionClick(transaction.id) }
+            )
         }
     }
 }
+
+@Composable
+private fun BalanceCard(
+    balance: Double,
+    income: Double,
+    expense: Double
+) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Số dư hiện tại", style = MaterialTheme.typography.labelMedium)
+            Text(
+                text = formatCurrency(balance),
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Spacer(Modifier.height(12.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Thu nhập", style = MaterialTheme.typography.labelSmall)
+                    Text(formatCurrency(income), color = MaterialTheme.colorScheme.primary)
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Chi tiêu", style = MaterialTheme.typography.labelSmall)
+                    Text(formatCurrency(expense), color = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TransactionItem(
+    transaction: Transaction,
+    onClick: () -> Unit
+) {
+    ListItem(
+        headlineContent = { Text(transaction.category) },
+        supportingContent = { Text(transaction.note) },
+        trailingContent = {
+            val isIncome = transaction.type === TransactionType.INCOME
+            Text(
+                text = "${if (isIncome) "+" else "-"}${formatCurrency(transaction.amount)}",
+                color = if (isIncome)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.error
+            )
+        },
+        modifier = Modifier.clickable(onClick = onClick)
+    )
+    HorizontalDivider()
+}
+
+@Composable
+private fun LoadingContent(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ErrorContent(message: String, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Có lỗi xảy ra", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+            Text(message, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+private fun formatCurrency(amount: Double): String =
+    "$,.0f".format(amount)

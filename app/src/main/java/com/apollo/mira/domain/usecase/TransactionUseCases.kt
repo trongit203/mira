@@ -1,9 +1,13 @@
 package com.apollo.mira.domain.usecase
 
+import com.apollo.mira.domain.model.DashboardSummary
+import com.apollo.mira.domain.model.Transaction
 import com.apollo.mira.presentation.dashboard.DashboardUiState
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 // UseCase1: Lấy dashboard summary
-class GetDashboardSummaryUsecase @Inject constructor(
+class GetDashboardSummaryUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
 
@@ -41,7 +45,7 @@ class GetDashboardSummaryUsecase @Inject constructor(
 class AddTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
-    suspend operator fun invoke(transaction: Transaction): Result<Transaction> { 
+    suspend operator fun invoke(transaction: Transaction): Result<Transaction> {
         // Validate trước khi lưu
         val validated = transaction.also { 
             require(it.amount > 0) { "Số tiền phải lớn hơn 0" }

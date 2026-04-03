@@ -1,36 +1,39 @@
 package com.apollo.mira.presentation.dashboard
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.apollo.mira.domain.model.Transaction
-import com.apollo.mira.domain.usecase.GetDashboardSummaryUsecase
+import com.apollo.mira.domain.usecase.GetDashboardSummaryUseCase
+import com.apollo.mira.domain.usecase.AddTransactionUseCase
+import com.apollo.mira.presentation.common.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // presentation/dashboard/DashboardViewModel.kt
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val getDashboardSummary: GetDashboardSummaryUsecase,
-    private val addTransaction: AddTransactionUsecase
+    private val getDashboardSummary: GetDashboardSummaryUseCase,
+    private val addTransaction: AddTransactionUseCase
 ) : ViewModel() {
 
     // ======= STATE FLOW - Cho UI state (màn hịnh)
-    val uiState: StateFlow<DashboardUiState> =
-            getDashboardSummary()
-                .stateIn(
-                    scope        = viewModelScope,
-                    started      = SharingStarted.WhileSubscribed(5_000),
-                    // WhileSubscribed(5000): Giữ Flow active 5 giây sau khi UI off screen
-                    // -> tránh restart khi xoay màn hình (<5 giây)
-                    // -> cancel khi user thực sự rời màn hĩnh
-                    initialValue = DashboardUiState.Loading
-                )
+    val uiState = getDashboardSummary()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = UiState.Loading
+        )
 
     // ======= SHARED FLOW - Cho one time event
     // replay = 0 ko replay event cũ cho subscribe mới
     // -> tránh toast """Thêm thành công" hiện lại khi user quay lại màn hình
-    private val _event = MutableSharedFlow<DashboardEvent>(replay = 0)
+    private val _events = MutableSharedFlow<DashboardEvent>(replay = 0)
     val events: SharedFlow<DashboardEvent> = _events.asSharedFlow()
 
     // ── ACTIONS ───────────────────────────────────────────────
@@ -51,7 +54,7 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             addTransaction(transaction)
                 .onSuccess { 
-
+                    _events.emit(DashboardEvent.ShowSnackbar("Đã thêm giao dịch ✓"))
                 }
                 .onFailure { error ->
                     _events.emit(
@@ -64,8 +67,3 @@ class DashboardViewModel @Inject constructor(
     }
 }
 
-sealed class DashboardEvent {
-    data class ShowSuccess(val message: String) : DashboardEvent()
-    data class ShowError(val message: String) : DashboardEvent()
-    data class NavigateTo(val route: String)
-}
