@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat /Users/mr9v2opt/Desktop/src/apollo/mira/app/build.gradle.kts)",
+      "Bash(./gradlew tasks --group=\"build\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
