@@ -15,14 +15,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// presentation/dashboard/DashboardViewModel.kt
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val getDashboardSummary: GetDashboardSummaryUseCase,
     private val addTransaction: AddTransactionUseCase
 ) : ViewModel() {
 
-    // ======= STATE FLOW - Cho UI state (màn hịnh)
+    // ======= STATE FLOW - Cho UI state (màn hình)
     val uiState = getDashboardSummary()
         .stateIn(
             scope = viewModelScope,

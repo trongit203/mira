@@ -1,6 +1,7 @@
 package com.apollo.mira.presentation.dashboard
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -77,6 +78,12 @@ fun DashboardScreen(
         // when la exhautive - compiler bat neu thieu case
         when (val state = uiState) { 
             is UiState.Loading -> LoadingContent(Modifier.padding(paddingValues))
+
+            is UiState.Empty ->
+                EmptyDashboardContent(
+                    onAddClick = viewModel::onAddTransactionClick,
+                    modifier = Modifier.padding(paddingValues)
+                )
 
             is UiState.Error -> 
                 ErrorContent(
@@ -204,3 +211,30 @@ private fun ErrorContent(message: String, modifier: Modifier = Modifier) {
 
 private fun formatCurrency(amount: Double): String =
     "$,.0f".format(amount)
+
+@Composable
+private fun EmptyDashboardContent(
+    onAddClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+     ) {
+        Text(
+            text = "Chưa có giao dịch nào",
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "Thêm giao dịch đầu tiên của bạn",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = onAddClick) {
+            Text("Thêm giao dịch")
+        }
+    }
+}

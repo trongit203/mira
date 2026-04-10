@@ -5,7 +5,6 @@ import com.apollo.mira.domain.model.Transaction
 import com.apollo.mira.domain.model.TransactionType
 import com.apollo.mira.domain.repository.TransactionRepository
 import com.apollo.mira.presentation.common.UiState
-//import com.apollo.mira.presentation.dashboard.DashboardViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -15,10 +14,14 @@ import javax.inject.Inject
 class GetDashboardSummaryUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
-
     operator fun invoke(): Flow<UiState<DashboardSummary>> =
         repository.getRecentTransactions(limit = 10)
             .map { transactions ->
+
+                if (transactions.isEmpty()) {
+                    return@map UiState.Empty
+                }
+
                 val income = transactions
                     .filter { it.type == TransactionType.INCOME }
                     .sumOf { it.amount }
@@ -32,13 +35,13 @@ class GetDashboardSummaryUseCase @Inject constructor(
                     totalExpense = expense,
                     recentTransactions = transactions
                 )
-
                 UiState.Success(summary) as UiState<DashboardSummary>
             }
             .catch { throwable ->
                 emit(UiState.Error(
                     message = throwable.message ?: "Lỗi tải dữ liệu",
-                    retryable = true
+                    retryable = true,
+                    throwable = throwable
                 ))
             }
     // Câu trả lời phỏng vấn: "Tại sao .catch() ở đây thay vì try/catch?"
@@ -46,7 +49,7 @@ class GetDashboardSummaryUseCase @Inject constructor(
     // try/catch trong collector bắt cả exception từ collector (UI) -> không mong muốn
 }
 
-// Usecase 2: Thêm giao dịch
+// UseCase 2: Thêm giao dịch
 class AddTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
@@ -60,7 +63,7 @@ class AddTransactionUseCase @Inject constructor(
     }
 }
 
-// Usecase 3: Lấy danh sách giao dịch (dùng cho màn hình khác)
+// UseCase 3: Lấy danh sách giao dịch (dùng cho màn hình khác)
 class GetRecentTransactionsUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {

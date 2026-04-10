@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler) // Apply plugin tại đây
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
+    id("com.google.devtools.ksp") version "2.1.0" // Use version matching your Kotlin version
+    kotlin("kapt")
 }
 
 android {
@@ -47,8 +51,12 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.room3.common.jvm)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.room3.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    ksp(libs.room.compiler)
 }

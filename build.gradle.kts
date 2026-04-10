@@ -3,4 +3,6 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.compose.compiler) apply false // Khai báo tại đây
+    alias(libs.plugins.hilt.android) apply false
+    alias(libs.plugins.ksp) apply false
 }
