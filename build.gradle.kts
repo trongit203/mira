@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false // Khai báo tại đây
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.ksp) apply false
+//    alias(libs.plugins.ksp) apply false
 }

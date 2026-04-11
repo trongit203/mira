@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.compose.compiler) // Apply plugin tại đây
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
-    id("com.google.devtools.ksp") version "2.1.0" // Use version matching your Kotlin version
     kotlin("kapt")
 }
 
@@ -24,6 +23,7 @@ android {
     }
 
     buildFeatures {
+
         compose = true
     }
 
@@ -58,5 +58,5 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-    ksp(libs.room.compiler)
+    ksp(libs.androidx.room.compiler)
 }
