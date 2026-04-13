@@ -13,6 +13,17 @@ import javax.inject.Singleton
 // DISPATCHER MODULE
 // Tại sao inject Dispatcher thay vì dùng Dispatchers.IO trực tiếp?
 //
+// Trong test, cần swap Dispatchers.IO -> TestCoroutineDispatcher
+// để control timing và chạy synchronously.
+//
+// Nếu code hard-code Dispatchers.IO:
+//   → không thể swap trong test → test flaky, async timing issues
+// Với @Named inject:
+//   -> test inject StandardTestDispatcher thay vào
+// toàn bộ coroutine chạy synchronously,
+//
+// @Named("IO") / @Named("Main") / @Named("Default"):
+//   → phân biệt 3 loại dispatcher, tránh nhầm lẫn khi inject
 // ============================================================
 
 @Module
@@ -29,7 +40,7 @@ object DispatcherModule {
     @Singleton
     @Named("Main")
     fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
-    // Dùng cho update UI, animatin
+    // Dùng cho update UI, animation
     // Ít khi inject trực tiếp vì viewModelScope đã default main
 
 
@@ -38,5 +49,5 @@ object DispatcherModule {
     @Named("Default")
     fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
     // Dùng cho sorting, parsing JSON lớn, tính toán CPU heavy
-    // Ví dụ: lọc/  danh sánh transaction lớn
+    // Ví dụ: lọc/sort danh sách transaction lớn
 }

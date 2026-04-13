@@ -66,33 +66,14 @@ UI Layer → ViewModel → Use Cases → Repository Interface (domain)
 
 ### Dependency Injection (Hilt)
 
-- **Application**: `@HiltAndroidApp` on `MiraApplication`
+- **Application**: `@HiltAndroidApp` on `MiraApp`
 - **Activities**: `@AndroidEntryPoint` on `MainActivity`
 - **ViewModels**: `@HiltViewModel` with `@Inject constructor()`
 - **Use Cases/Repositories**: Constructor injection with `@Inject`
-- **Named Qualifiers**: `@Named("IO")` for `CoroutineDispatcher` (not yet implemented in modules)
-
-**Note**: Hilt modules for Room database and dispatcher providers are not yet created. Future work should add:
-```kotlin
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModule {
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase
-
-    @Provides
-    fun provideTransactionDao(db: AppDatabase): TransactionDao
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-object DispatcherModule {
-    @Provides
-    @Named("IO")
-    fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
-}
-```
+- **Modules** (in `di/`):
+  - `DatabaseModule`: provides `MiraDatabase` and `TransactionDao`
+  - `DispatcherModule`: provides `@Named("IO")`, `@Named("Main")`, `@Named("Default")` `CoroutineDispatcher`
+  - `RepositoryModule`: binds `TransactionRepositoryImpl` → `TransactionRepository`
 
 ## Common Development Commands
 
@@ -245,8 +226,9 @@ Use sealed classes for states and events to get compiler-enforced exhaustive `wh
 ```kotlin
 sealed class UiState<out T> {
     data object Loading : UiState<Nothing>()
+    data object Empty : UiState<Nothing>()
     data class Success<T>(val data: T) : UiState<T>()
-    data class Error(val message: String, val retryable: Boolean) : UiState<Nothing>()
+    data class Error(val message: String, val retryable: Boolean, val throwable: Throwable? = null) : UiState<Nothing>()
 }
 ```
 
@@ -275,45 +257,51 @@ Future work should implement `androidx.navigation:navigation-compose` for type-s
 
 ## Known Gaps / TODO
 
-1. **Hilt Modules**: Database and dispatcher provider modules not yet created
-2. **Navigation**: Currently callback-based, needs Navigation Compose integration
-3. **AppDatabase**: Room database class not yet defined
-4. **Delete Implementation**: `softDelete` logic not wired to UI
-5. **Add Transaction Screen**: UI not yet implemented (TODOs in MainActivity)
-6. **Transaction Detail Screen**: Not yet implemented
-7. **OCR Integration**: `DataSource.OCR` enum exists but no implementation
-8. **Payment Gateway Sync**: `DataSource.MOMO`, `ZALOPAY`, `BANK_SYNC` planned but not implemented
+1. **Navigation**: Currently callback-based (`onNavigateToAddTransaction`, `onNavigateToDetail` are TODOs in `MainActivity`); needs Navigation Compose integration
+2. **Delete Implementation**: `softDelete` logic not wired to UI
+3. **Add Transaction Screen**: `AddTransactionViewModel` and form state exist; Composable UI screen not yet implemented
+4. **Transaction Detail Screen**: Not yet implemented
+5. **OCR Integration**: `DataSource.OCR` enum exists but no implementation
+6. **Payment Gateway Sync**: `DataSource.MOMO`, `ZALOPAY`, `BANK_SYNC` planned but not implemented
 
 ## File Organization
 
 ```
 app/src/main/java/com/apollo/mira/
-├── MiraApplication.kt              # Hilt entry point
-├── MainActivity.kt                 # Activity with Compose setContent
+├── MiraApp.kt                      # @HiltAndroidApp entry point
+├── MainActivity.kt                 # @AndroidEntryPoint, hosts DashboardScreen
+├── di/
+│   ├── DatabaseModule.kt           # Provides MiraDatabase + TransactionDao
+│   ├── DispatcherModule.kt         # Provides @Named IO/Main/Default dispatchers
+│   └── RepositoryModule.kt         # Binds TransactionRepositoryImpl → interface
 ├── domain/
 │   ├── model/
-│   │   └── Transaction.kt          # Immutable domain models
+│   │   └── Transaction.kt          # Immutable domain models (Transaction, DashboardSummary)
 │   ├── repository/
 │   │   └── TransactionRepository.kt # Repository contract
 │   └── usecase/
-│       └── TransactionUseCases.kt  # Business logic
+│       └── TransactionUseCases.kt  # GetDashboardSummaryUseCase, AddTransactionUseCase, GetRecentTransactionsUseCase
 ├── data/
 │   ├── local/
+│   │   ├── MiraDatabase.kt         # Room database (version 1, fallbackToDestructiveMigration)
 │   │   ├── entity/
-│   │   │   └── TransactionEntity.kt # Mutable Room entity
+│   │   │   └── TransactionEntity.kt
 │   │   └── dao/
-│   │       └── TransactionDao.kt    # Room queries
+│   │       └── TransactionDao.kt
 │   ├── mapper/
-│   │   └── TransactionMapper.kt     # Entity ↔ Domain conversion
+│   │   └── TransactionMapper.kt
 │   └── repository/
-│       └── TransactionRepositoryImpl.kt # Repository implementation
+│       └── TransactionRepositoryImpl.kt
 └── presentation/
     ├── common/
-    │   └── UiState.kt               # Sealed UI state classes
-    └── dashboard/
-        ├── DashboardScreen.kt       # Composable UI
-        ├── DashboardViewModel.kt    # State management
-        └── DashboardUiState.kt      # UI events
+    │   └── UiState.kt               # Sealed: Loading, Empty, Success, Error
+    ├── dashboard/
+    │   ├── DashboardScreen.kt
+    │   ├── DashboardViewModel.kt
+    │   └── DashboardUiState.kt      # DashboardEvent sealed class
+    └── add_transaction/
+        ├── AddTransactionForm.kt    # Form data class + AddTransactionEvent
+        └── AddTransactionViewModel.kt # ViewModel (screen Composable not yet implemented)
 ```
 
 ## Code Comments

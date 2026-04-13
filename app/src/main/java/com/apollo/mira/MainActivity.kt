@@ -14,7 +14,7 @@ class MainActivity: ComponentActivity() {
             MaterialTheme {
                 DashboardScreen(
                     onNavigateToAddTransaction = { /*TODO: */ },
-                    onNavigateToDetail = { id -> /**/ }
+                    onNavigateToDetail = { id -> /*TODO*/ }
                 )
             }
 
