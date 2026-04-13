@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.androidx.room3.common.jvm)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.room3.runtime)
+    implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.material.icons.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
