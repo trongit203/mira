@@ -14,6 +14,12 @@ room3Version = "3.0.0-alpha02"
 ksp = "2.0.21-1.0.28"
 foundationLayout = "1.10.6"
 compose-icons = "1.7.0"
+mockk = "1.13.10"
+kotlinx-coroutines-test = "1.8.0"
+turbine = "1.1.0"
+hilt-android-testing = "2.54"
+hilt-compiler = "2.54"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +37,12 @@ androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", ver
 androidx-room-compiler = { group="androidx.room3", name = "room3-compiler", version.ref = "room3Version" }
 androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "compose-icons" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+#Hilt testing
+hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt-android-testing" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

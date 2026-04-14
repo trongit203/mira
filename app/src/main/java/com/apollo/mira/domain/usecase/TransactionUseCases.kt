@@ -18,9 +18,7 @@ class GetDashboardSummaryUseCase @Inject constructor(
         repository.getRecentTransactions(limit = 10)
             .map { transactions ->
 
-                if (transactions.isEmpty()) {
-                    return@map UiState.Empty
-                }
+                if (transactions.isEmpty()) return@map UiState.Empty
 
                 val income = transactions
                     .filter { it.type == TransactionType.INCOME }

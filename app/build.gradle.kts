@@ -41,6 +41,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
     }
 }
 
@@ -53,11 +54,17 @@ dependencies {
     implementation(libs.androidx.room3.runtime)
     implementation(libs.androidx.foundation.layout)
     implementation(libs.androidx.material.icons.core)
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.hilt.android.testing)
+
+
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 }

@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.apollo.mira.domain.model.DashboardSummary
 import com.apollo.mira.domain.model.TransactionType
 import kotlinx.coroutines.flow.collectLatest
+import java.text.NumberFormat
+import java.util.Locale
 
 // ============================================================
 // DASHBOARD SCREEN - Compose UI
@@ -110,7 +112,8 @@ private fun DashboardContent(
     summary: DashboardSummary,
     onTransactionClick: (Long) -> Unit,
     modifier: Modifier = Modifier
-) { 
+) {
+    println("summary: ${summary}")
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item {
             BalanceCard(
@@ -175,7 +178,11 @@ private fun TransactionItem(
 ) {
     ListItem(
         headlineContent = { Text(transaction.category) },
-        supportingContent = { Text(transaction.note) },
+        supportingContent = if (transaction.note.isNotEmpty()) {
+            { Text(transaction.note) }
+        } else {
+            null
+        },
         trailingContent = {
             val isIncome = transaction.type === TransactionType.INCOME
             Text(
@@ -209,8 +216,12 @@ private fun ErrorContent(message: String, modifier: Modifier = Modifier) {
     }
 }
 
-private fun formatCurrency(amount: Double): String =
-    "$,.0f".format(amount)
+private fun formatCurrency(amount: Double): String = 
+    amount.let { raw ->
+        NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
+            .format(raw)
+            .replace("₫", "đ")
+    }
 
 @Composable
 private fun EmptyDashboardContent(
