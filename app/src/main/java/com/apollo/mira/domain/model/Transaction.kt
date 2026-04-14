@@ -21,4 +21,4 @@ data class DashboardSummary(
 ) {
     val netBalance: Double get() = totalIncome - totalExpense
     val savingsRate: Double get() = if (totalIncome > 0) netBalance / totalIncome else 0.0
-    }
+}

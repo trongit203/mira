@@ -91,7 +91,7 @@ fun AddTransactionScreen(
                 }
                 // ── Số tiền ────────────────────────────────────
                 OutlinedTextField(
-                    value = "",
+                    value = form.rawAmount,
                     onValueChange = viewModel::onAmountChange,
                     label = { Text("Số tiền") },
                     suffix = { Text("đ") },
@@ -123,14 +123,15 @@ fun AddTransactionScreen(
                     onClick = viewModel::onSubmit,
                     enabled = !form.isSubmitting,
                     modifier = Modifier.fillMaxWidth()
-                ) { }
-                if (form.isSubmitting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Lưu giao dịch")
+                ) {
+                    if (form.isSubmitting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Lưu giao dịch")
+                    }
                 }
             }
     }

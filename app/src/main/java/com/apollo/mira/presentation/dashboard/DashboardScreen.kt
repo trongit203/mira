@@ -106,7 +106,7 @@ fun DashboardScreen(
 // Sub-composables
 
 @Composable
-fun DashboardContent(
+private fun DashboardContent(
     summary: DashboardSummary,
     onTransactionClick: (Long) -> Unit,
     modifier: Modifier = Modifier

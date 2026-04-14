@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.compose.compiler) // Apply plugin tại đây
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
-    kotlin("kapt")
 }
 
 android {
@@ -59,6 +58,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 }

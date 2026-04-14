@@ -19,26 +19,27 @@ class TransactionRepositoryImpl @Inject constructor (
 ): TransactionRepository {
     override fun getRecentTransactions(limit: Int): Flow<List<Transaction>> =
         dao.getRecentTransactions(limit)
-            .map { entities -> mapper.toDomainList(entities) }
+            .map { mapper.toDomainList(it) }
             .flowOn(dispatcher)
 
     override fun getAllTransactions(): Flow<List<Transaction>> =
-            dao.getAllTransactions()
-                .map { entities -> mapper.toDomainList(entities) }
-                .flowOn(dispatcher)
+        dao.getAllTransactions()
+            .map { mapper.toDomainList(it) }
+            .flowOn(dispatcher)
 
-    override suspend fun addTransaction(transaction: Transaction) : Result<Transaction> =
+    override suspend fun addTransaction(transaction: Transaction): Result<Transaction> =
         withContext(dispatcher) {
             runCatching {
-                val entity = mapper.toEntity(transaction)
-                val generateId = dao.insert(entity)
-
-                // trả về domain object với ID thật từ DB
-                transaction.copy(id = generateId)
+                dao.insert(mapper.toEntity(transaction)).let { id ->
+                    transaction.copy(id = id)
+                }
             }
-    }
+        }
 
-    override suspend fun deleteTransaction(id: Long): Result<Unit> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteTransaction(id: Long): Result<Unit> =
+        withContext(dispatcher) {
+            runCatching {
+                dao.softDelete(id)
+            }
+        }
 }

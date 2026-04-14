@@ -5,7 +5,9 @@ import com.apollo.mira.domain.model.DataSource
 import com.apollo.mira.domain.model.Transaction
 import com.apollo.mira.domain.model.TransactionType
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TransactionMapper @Inject constructor() {
 
 //    Domain -> Entity: dung apply vi Entity co var (mutable)
@@ -18,8 +20,6 @@ class TransactionMapper @Inject constructor() {
                 type = domain.type.name
                 timestamp = domain.timestamp
                 source = domain.source.name
-                isDeleted = false
-                syncedAt = null
             }
 //    Entity -> Domain: dung contructor truc tiep vi Transaction la immutable
     // let dung de safe-parse enum - tranh crash neu DB co gia tri la

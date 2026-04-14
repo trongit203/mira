@@ -74,7 +74,15 @@ class AddTransactionViewModel @Inject constructor(
             )}
             return
         }
-
+        val transaction = Transaction(
+            amount          = currentForm.parsedAmount,
+            category        = currentForm.selectedCategory,
+            note            = currentForm.note.trim(),
+            type            = currentForm.transactionType,
+            timestamp       = currentForm.dateMillies
+                ?: System.currentTimeMillis()
+        )
+        println("log-85 Transaction: $transaction")
         viewModelScope.launch {
             _form.update { it.copy(isSubmitting = true) }
 

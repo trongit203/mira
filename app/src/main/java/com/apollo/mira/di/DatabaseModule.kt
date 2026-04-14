@@ -14,11 +14,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    @Provides
-    @Singleton
-    fun provideMiraDatabase(
-        @ApplicationContext context: Context
-    ): MiraDatabase =
+    @Provides @Singleton
+    fun provideMiraDatabase(@ApplicationContext context: Context): MiraDatabase =
         Room.databaseBuilder(
             context,
             MiraDatabase::class.java,
