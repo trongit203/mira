@@ -15,7 +15,8 @@ class TransactionMapper @Inject constructor() {
 //    Domain -> Entity: dung apply vi Entity co var (mutable)
     fun toEntity(domain: Transaction): TransactionEntity {
         val logger = Logger.getAnonymousLogger()
-        return TransactionEntity().apply {
+        return TransactionEntity()
+            .apply {
                 id = domain.id
                 amount = domain.amount
                 category = domain.category
@@ -23,9 +24,9 @@ class TransactionMapper @Inject constructor() {
                 type = domain.type.name
                 timestamp = domain.timestamp
                 source = domain.source.name
-        }.also { entity ->
+            }.also { entity ->
             logger.info("Mapping Transaction: ${domain.id} -> Entity amount=${entity.amount}, type=${entity.type}")
-        }
+         }
     }
 
 //    Entity -> Domain: dung contructor truc tiep vi Transaction la immutable
