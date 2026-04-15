@@ -37,7 +37,7 @@ class AddTransactionViewModel @Inject constructor(
                 // Validate ngay khi gõ - UX tốt hơn validate khi submit
                 amountError = when {
                     raw.isBlank()                       -> null
-                    raw.toDoubleOrNull() == null        -> "Số tiền cc không hợp lệ"
+                    raw.toDoubleOrNull() == null        -> "Số tiền không hợp lệ"
                     raw.toDouble() <= 0                 -> "Số tiền phải lớn hơn 0"
                     raw.toDouble() > 1_000_000_000      -> "Số tiền vượt quá giới hạn"
                     else                                -> null

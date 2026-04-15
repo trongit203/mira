@@ -67,4 +67,5 @@ dependencies {
 
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
+    testImplementation(kotlin("test"))
 }
