@@ -15,7 +15,7 @@ class GetDashboardSummaryUseCase @Inject constructor(
     private val repository: TransactionRepository
 ) {
     operator fun invoke(): Flow<UiState<DashboardSummary>> =
-        repository.getRecentTransactions(limit = 10)
+        repository.getRecentTransactions(limit = 20)
             .map { transactions ->
 
                 if (transactions.isEmpty()) return@map UiState.Empty
