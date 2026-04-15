@@ -113,7 +113,6 @@ private fun DashboardContent(
     onTransactionClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    println("summary: ${summary}")
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item {
             BalanceCard(
