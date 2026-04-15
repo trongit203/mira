@@ -53,7 +53,7 @@ class AddTransactionUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(transaction: Transaction): Result<Transaction> {
         // Validate trước khi lưu
-        val validated = transaction.also { 
+        val validated = transaction.also {
             require(it.amount > 0) { "Số tiền phải lớn hơn 0" }
             require(it.category.isNotBlank()) { "Phải chọn danh mục" }
         }
