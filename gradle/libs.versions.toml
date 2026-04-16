@@ -19,6 +19,7 @@ kotlinx-coroutines-test = "1.8.0"
 turbine = "1.1.0"
 hilt-android-testing = "2.54"
 hilt-compiler = "2.54"
+uiTestJunit4 = "1.10.6"
 
 
 [libraries]
@@ -42,6 +43,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 #Hilt testing
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt-android-testing" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "uiTestJunit4" }
 
 
 [plugins]

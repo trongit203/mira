@@ -69,7 +69,7 @@ class AddTransactionViewModel @Inject constructor(
         // Validate toàn bộ form trước khi submit
         if (!currentForm.isValid) {
             _form.update { it.copy(
-                amountError     = it.amountError,
+                amountError     = if (it.parsedAmount <= 0) "Nhập số tiền" else it.amountError,
                 categoryError   = if (it.selectedCategory.isBlank()) "Chọn danh mục" else null
             )}
             return
