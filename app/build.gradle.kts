@@ -59,6 +59,17 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+
+    // Security
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.biometric)
+
+    // Network
+    implementation(libs.okhttp3)
+    implementation(libs.okhttp3.logging.interceptor)
+    implementation(libs.retrofit2)
+    implementation(libs.retrofit2.converter.gson)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
