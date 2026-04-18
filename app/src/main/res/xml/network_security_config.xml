@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Production: chỉ cho phép HTTPS, không cho cleartext HTTP -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Chỉ trust system CA store, không trust user-installed CA -->
+            <!-- Điều này ngăn attacker cài CA của họ để MITM -->
+            <certificates src="system"/>
+            <!-- KHÔNG có: <certificates src="user"/> -->
+        </trust-anchors>
+    </base-config>
+
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="user"/> <!-- Chỉ debug: trust user-installed CA -->
+        </trust-anchors>
+    </debug-overrides>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.mira.vn</domain>
+        <pin-set expiration="2026-01-01">
+            <!-- SHA-256 hash của public key — THAY BẰNG HASH THẬT -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

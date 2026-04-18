@@ -1,29 +1,19 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# ============================================================
+# MIRA PROGUARD RULES
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-#R8 (successor của ProGuard) làm 3 việc:
-# 1. Shrink
-# 2. Obfuscate
+# R8 (successor của ProGuard) làm 3 việc:
+# 1. Shrink: xoá code không dùng (giảm APK size)
+# 2. Obfuscate: đổi tên class/method thành a, b, c...
 # 3. Optimize: inline method, remove dead code
-#@ ── giữ lại class cần thiết
+#
+# Câu hỏi phỏng vấn: "ProGuard bảo vệ gì, không bảo vệ gì?"
+# BẢO VỆ: business logic, algorithm, tên class/method
+# KHÔNG bảo vệ: network traffic (cần SSL Pinning riêng),
+#               strings hardcode trong code (API keys exposed!)
+#               → KHÔNG bao giờ lưu API key trong source code
+# ============================================================
+
+# ── Giữ lại class cần thiết ───────────────────────────────────
 
 # Domain models -
 -keep class com.apollo.mira.domain.model.** { *; }
@@ -42,7 +32,7 @@
 -keepattributes *Annotation*
 -keep class retrofit2.** { *; }
 -keep class com.google.gson.** { *; }
--keepclassmembers.allowshrinking.allowobfuscation interface * {
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
     @retrofit2.http.* <methods>;
 }
 
@@ -53,8 +43,9 @@
 
 # Room
 -keep class androidx.room.** { *; }
--keep @androidx.room.Entity class * { *; }
--keep @androidx.room.Dao interface * { *; }
+-keep class androidx.room3.** { *; }
+-keep @androidx.room3.Entity class * { *; }
+-keep @androidx.room3.Dao interface * { *; }
 
 # Coroutines
 -keepclassmembernames class kotlinx.** {

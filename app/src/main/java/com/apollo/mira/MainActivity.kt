@@ -27,7 +27,10 @@ class MainActivity: ComponentActivity() {
                             onNavigateToAddTransaction = {
                                 navController.navigate(Routes.ADD_TRANSACTION)
                             },
-                            onNavigateToDetail = { id -> /*TODO*/ }
+                            onNavigateToDetail = { id -> /*TODO*/ },
+                            onNavigateToSettings = {
+                                navController.navigate(Routes.SECURITY_SETTINGS)
+                            }
                         )
                     }
                     composable(Routes.ADD_TRANSACTION) {
@@ -35,6 +38,14 @@ class MainActivity: ComponentActivity() {
                             onNavigateBack = { navController.popBackStack() }
                         )
                     }
+
+//                    SecuritySettingsScreen được wire vào đây
+                    composable(Routes.SECURITY_SETTINGS) {
+                        com.apollo.mira.presentation.settings.SecuritySettingsScreen(
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+
                 }
             }
 
@@ -45,4 +56,5 @@ class MainActivity: ComponentActivity() {
 object Routes {
     const val DASHBOARD = "dashboard"
     const val ADD_TRANSACTION = "add_transaction"
+    const val SECURITY_SETTINGS = "security_settings"
 }
