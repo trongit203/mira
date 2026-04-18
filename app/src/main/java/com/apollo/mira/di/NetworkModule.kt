@@ -31,6 +31,8 @@ object NetworkModule {
         authInterceptor = authInterceptor
     )
 
+    @Provides
+    @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
             .baseUrl("https://api.mira.vn/v1")

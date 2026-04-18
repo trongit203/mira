@@ -1,4 +1,4 @@
-package com.mira.data.network
+package com.apollo.mira.data.network
 
 import com.apollo.mira.security.SecurePreferences
 import okhttp3.CertificatePinner
@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 // ============================================================
 // NETWORK SECURITY — SSL Pinning + Security Interceptors
@@ -137,5 +138,3 @@ class AuthInterceptor @Inject constructor(
     }
 }
 
-// Missing import fix
-annotation class Inject
