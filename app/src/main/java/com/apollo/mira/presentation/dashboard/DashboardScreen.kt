@@ -46,6 +46,13 @@ import androidx.compose.ui.unit.dp
 import com.apollo.mira.TestTags
 import com.apollo.mira.domain.model.DashboardSummary
 import com.apollo.mira.domain.model.TransactionType
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
+import com.apollo.mira.utils.NotificationPermissionUtils
 import kotlinx.coroutines.flow.collectLatest
 import java.text.NumberFormat
 import java.util.Locale
@@ -108,8 +115,12 @@ fun DashboardScreen(
             { Text("+") }
         }   
     ) { paddingValues ->
-        // when la exhautive - compiler bat neu thieu case
-        when (val state = uiState) { 
+        val context = LocalContext.current
+        Column(modifier = Modifier.padding(paddingValues)) {
+            if (!NotificationPermissionUtils.isNotificationAccessGranted(context)) {
+                NotificationPermissionBanner()
+            }
+            when (val state = uiState) {
             is UiState.Loading -> LoadingContent(Modifier.padding(paddingValues))
 
             is UiState.Empty ->
@@ -130,10 +141,44 @@ fun DashboardScreen(
                 DashboardContent(
                     summary = state.data,
                     onTransactionClick = viewModel::onTransactionClick,
-                    modifier = Modifier.padding(paddingValues)
+                    modifier = Modifier
                 )
         }
+        }
      }
+}
+
+@Composable
+private fun NotificationPermissionBanner() {
+    val context = LocalContext.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Cho phép đọc thông báo để tự động ghi giao dịch từ MoMo, ZaloPay và ngân hàng.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(Modifier.width(8.dp))
+            TextButton(onClick = {
+                context.startActivity(
+                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }) {
+                Text("Cấp quyền")
+            }
+        }
+    }
 }
 
 // Sub-composables
