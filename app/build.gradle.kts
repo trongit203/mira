@@ -73,14 +73,16 @@ dependencies {
     implementation(libs.retrofit2)
     implementation(libs.retrofit2.converter.gson)
 
+    debugImplementation(libs.leakcanary)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.hilt.android.testing)
+    testImplementation(kotlin("test"))
 
 
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
-    testImplementation(kotlin("test"))
 }

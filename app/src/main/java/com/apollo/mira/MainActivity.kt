@@ -24,13 +24,10 @@ class MainActivity: AppCompatActivity() {
     @Inject
     lateinit var securePreferences: SecurePreferences
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                val navController = rememberNavController()
-
                 var isAuthenticated by rememberSaveable {
                     mutableStateOf(!securePreferences.isBiometricEnabled)
                 }
