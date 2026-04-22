@@ -33,9 +33,21 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+// ============================================================
+// BIOMETRIC LOCK SCREEN — gate màn hình chính của Mira
+//
+// Cách dùng trong MainActivity:
+//
+//   if (biometricEnabled && !isAuthenticated) {
+//       BiometricLockScreen(onAuthenticated = { isAuthenticated = true })
+//   } else {
+//       MainNavigation()
+//   }
+// ============================================================
+
 
 @HiltViewModel
 class BiometricViewModel @Inject constructor(
@@ -48,11 +60,10 @@ class BiometricViewModel @Inject constructor(
     val isAuthenticated: StateFlow<Boolean> = _isAuthenticated.asStateFlow()
 
     val availability = biometricManager.checkBiometricAvailability()
-
     // Event từ BiometricPrompt callback
     private val _uiEvent = MutableSharedFlow<BiometricUiEvent>()
-    val uiEvent: SharedFlow<BiometricUiEvent> = _uiEvent.asSharedFlow()
 
+    val uiEvent: SharedFlow<BiometricUiEvent> = _uiEvent.asSharedFlow()
     init {
         viewModelScope.launch {
             biometricManager.authResult.collect { result ->
@@ -60,12 +71,14 @@ class BiometricViewModel @Inject constructor(
                     BiometricResult.Success -> {
                         _isAuthenticated.value = true
                     }
+
                     BiometricResult.UserCancelled -> {
                         // User huỷ → vẫn ở lock screen, không làm gì
                     }
+
                     BiometricResult.LockedOut -> {
                         _uiEvent.emit(BiometricUiEvent.ShowError(
-                            "Quá nhiều lần thử. Vui lòng thử lại"
+                            "Qúa nhiều lần thử sai. Vui lòng thử lại sau"
                         ))
                     }
                     is BiometricResult.Error -> {
@@ -83,7 +96,7 @@ class BiometricViewModel @Inject constructor(
     fun isBiometricEnabled() = securePreferences.isBiometricEnabled
 
     sealed class BiometricUiEvent {
-        data class ShowError(val message: String): BiometricUiEvent()
+        data class ShowError(val message: String) : BiometricUiEvent()
     }
 
 }
@@ -93,7 +106,6 @@ fun BiometricLockScreen(
     onAuthenticated: () -> Unit,
     viewModel: BiometricViewModel = hiltViewModel()
 ) {
-
     val isAuthenticated by viewModel.isAuthenticated.collectAsState()
     val activity = LocalContext.current as FragmentActivity
     val snackbarHostState = remember { SnackbarHostState() }
@@ -126,25 +138,25 @@ fun BiometricLockScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(32.dp),
-            verticalArrangement   = Arrangement.Center,
-            horizontalAlignment   = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text  = "Mira",
-                style = MaterialTheme.typography.displaySmall
+                text = "Mira",
+                style = MaterialTheme.typography.displaySmall,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text  = "Xác thực để tiếp tục",
+                text = "Xác thực để tiếp tục",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(48.dp))
 
             when (viewModel.availability) {
                 is BiometricAvailability.Available -> {
                     Button(
-                        onClick  = { viewModel.triggerAuth(activity) },
+                        onClick = { viewModel.triggerAuth(activity) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Dùng vân tay / khuôn mặt")
@@ -153,7 +165,7 @@ fun BiometricLockScreen(
                 is BiometricAvailability.NoneEnrolled -> {
                     Text(
                         "Bạn chưa thiết lập xác thực sinh trắc học.\n" +
-                                "Vào Cài đặt → Bảo mật để thêm vân tay.",
+                        "Vào Cài đặt -> Bảo mật để thêm vân tay.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )

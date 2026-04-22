@@ -1,7 +1,6 @@
 package com.apollo.mira
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +13,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apollo.mira.presentation.add_transaction.AddTransactionScreen
 import com.apollo.mira.presentation.dashboard.DashboardScreen
-import com.apollo.mira.presentation.settings.SecuritySettingsScreen
 import com.apollo.mira.security.BiometricLockScreen
 import com.apollo.mira.security.SecurePreferences
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +23,7 @@ class MainActivity: AppCompatActivity() {
 
     @Inject
     lateinit var securePreferences: SecurePreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +42,10 @@ class MainActivity: AppCompatActivity() {
                 } else {
                     // ── MAIN APP ──────────────────────────────────
                     // Chỉ hiện sau khi đã auth
+                    val navController = rememberNavController()
+
                     NavHost(
-                        navController = navController,
+                        navController    = navController,
                         startDestination = Routes.DASHBOARD
                     ) {
                         composable(Routes.DASHBOARD) {
@@ -52,19 +53,24 @@ class MainActivity: AppCompatActivity() {
                                 onNavigateToAddTransaction = {
                                     navController.navigate(Routes.ADD_TRANSACTION)
                                 },
-                                onNavigateToDetail = { id -> /*TODO*/ },
+                                onNavigateToDetail = {
+                                    // Detail screen — implement sau
+                                },
                                 onNavigateToSettings = {
                                     navController.navigate(Routes.SECURITY_SETTINGS)
                                 }
                             )
                         }
+
                         composable(Routes.ADD_TRANSACTION) {
                             AddTransactionScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
+
+                        // ← SecuritySettingsScreen được wire vào đây
                         composable(Routes.SECURITY_SETTINGS) {
-                            SecuritySettingsScreen(
+                            com.apollo.mira.presentation.settings.SecuritySettingsScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
