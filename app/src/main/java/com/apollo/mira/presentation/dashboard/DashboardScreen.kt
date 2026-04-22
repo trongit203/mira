@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,9 +31,12 @@ import com.apollo.mira.presentation.common.UiState
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties.TestTag
 import androidx.compose.ui.unit.dp
 import com.apollo.mira.domain.model.DashboardSummary
 import com.apollo.mira.domain.model.TransactionType
+import com.apollo.mira.utils.TestTags
 import kotlinx.coroutines.flow.collectLatest
 import java.text.NumberFormat
 import java.util.Locale
@@ -41,10 +47,12 @@ import java.util.Locale
 // - collectedAsStateWithLifecycle: chỉ collect khi app foreground
 // - SharedFlow collect trong LaunchedEffect (không phải collectAsState)
 // - when(uiState) xử lý tất cả state - không if/else
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     onNavigateToAddTransaction: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
+    onNavigateToSettings: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     // collectAsStateWithLifecycle: lifecycle-aware, chỉ collect khi STARTED
@@ -71,9 +79,25 @@ fun DashboardScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Mira") },
+                actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Cài đặt bảo mật"
+                        )
+                    }
+                }
+            )
+        },
         floatingActionButton = { 
-            FloatingActionButton(onClick = viewModel::onAddTransactionClick) {
-                Text("+")
+            FloatingActionButton(
+                onClick = viewModel::onAddTransactionClick,
+                modifier = Modifier.testTag(TestTags.FAB_ADD)
+            ) {
+                    Text("+")
             }
         }   
     ) { paddingValues ->
