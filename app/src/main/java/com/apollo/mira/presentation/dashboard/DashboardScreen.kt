@@ -144,31 +144,36 @@ private fun DashboardContent(
     onTransactionClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
-        item {
-            BalanceCard(
-                balance = summary.netBalance,
-                income = summary.totalIncome,
-                expense = summary.totalExpense
-            )
-        }
-        item {
-            Text(
-                text = "Giao dịch gần đây",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-        items(
-            items = summary.recentTransactions,
-            key = { it.id } // key quan trong cho performance LazyColumn
-        ) { transaction ->
-            TransactionItem(
-                transaction = transaction,
-                onClick = { onTransactionClick(transaction.id) }
-            )
-        }
-    }
+    OptimizedTransactionList(
+        transactions = summary.recentTransactions,
+        onTransactionClick = onTransactionClick,
+        modifier = modifier.fillMaxSize()
+    )
+//    LazyColumn(modifier = modifier.fillMaxSize()) {
+//        item {
+//            BalanceCard(
+//                balance = summary.netBalance,
+//                income = summary.totalIncome,
+//                expense = summary.totalExpense
+//            )
+//        }
+//        item {
+//            Text(
+//                text = "Giao dịch gần đây",
+//                style = MaterialTheme.typography.titleMedium,
+//                modifier = Modifier.padding(16.dp)
+//            )
+//        }
+//        items(
+//            items = summary.recentTransactions,
+//            key = { it.id } // key quan trong cho performance LazyColumn
+//        ) { transaction ->
+//            TransactionItem(
+//                transaction = transaction,
+//                onClick = { onTransactionClick(transaction.id) }
+//            )
+//        }
+//    }
 }
 
 @Composable

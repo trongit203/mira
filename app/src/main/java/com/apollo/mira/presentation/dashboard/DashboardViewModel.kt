@@ -22,9 +22,13 @@ class DashboardViewModel @Inject constructor(
 ) : ViewModel() {
 
     // ======= STATE FLOW - Cho UI state (màn hình)
+    // Method stateIn Convert Flow sang StateFlow
     val uiState = getDashboardSummary()
         .stateIn(
             scope = viewModelScope,
+            // Giữ Flow active 5 giây sau khi UI off screen
+            // -> tránh restart khi xoay màn hình (< 5 giây)
+            // -> cancel khi user thực sự rời màn hình (> 5 giây)
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = UiState.Loading
         )

@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.apollo.mira.presentation.add_transaction.AddTransactionScreen
 import com.apollo.mira.presentation.dashboard.DashboardScreen
+import com.apollo.mira.presentation.settings.SecuritySettingsScreen
 import com.apollo.mira.security.BiometricLockScreen
 import com.apollo.mira.security.SecurePreferences
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +29,11 @@ class MainActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
+
+                // isAuthenticated: false cho đến khi user xác thực
+                // saveable: tồn tại qua rotation, reset khi app restart
                 var isAuthenticated by rememberSaveable {
+                    // Nếu bio
                     mutableStateOf(!securePreferences.isBiometricEnabled)
                 }
 
@@ -67,7 +72,7 @@ class MainActivity: AppCompatActivity() {
 
                         // ← SecuritySettingsScreen được wire vào đây
                         composable(Routes.SECURITY_SETTINGS) {
-                            com.apollo.mira.presentation.settings.SecuritySettingsScreen(
+                            SecuritySettingsScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
